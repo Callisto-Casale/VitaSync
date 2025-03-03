@@ -171,5 +171,5 @@ cython_debug/
 .pypirc
 
 # Private files
-scripts/RELOAD_PI.ps1
+scripts/RELOAD_PROJECT.ps1
 scripts/SHIP_ENV_TO_PI.ps1
