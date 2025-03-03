@@ -8,7 +8,7 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 log = logging.getLogger("werkzeug")
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.ERROR,
     format="%(asctime)s %(levelname)s: %(message)s",
     handlers=[logging.StreamHandler()],
 )
