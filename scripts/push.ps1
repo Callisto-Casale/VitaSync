@@ -11,5 +11,5 @@ if ($args.Count -gt 0 -and $args[0] -eq "auto") {
 
 git commit -m "$commitMessage"
 
-git push origin main
-
+$branch = git branch --show-current
+git push origin $branch
