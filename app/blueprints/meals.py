@@ -1,5 +1,6 @@
-from database.meals_database import MealBase
 from flask import Blueprint, jsonify, request
+
+from app.database.meals_database import MealBase
 
 meals_bp = Blueprint("meals", __name__)
 

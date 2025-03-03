@@ -1,5 +1,6 @@
-from database.ingredients_database import IngredientBase
 from flask import Blueprint, jsonify, request
+
+from app.database.ingredients_database import IngredientBase
 
 ingredients_bp = Blueprint("ingredients", __name__)
 
