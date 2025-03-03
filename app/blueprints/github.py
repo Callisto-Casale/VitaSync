@@ -21,6 +21,3 @@ def github_reload():
     subprocess.Popen(["sudo", "systemctl", "restart", "gunicorn"])
 
     return jsonify({"message": "Code updated and Gunicorn restarted"}), 200
-
-
-# Test comment
