@@ -2,7 +2,6 @@
 
 git add --all
 
-# Check for arguments
 $reloadFlag = $false
 $autoCommit = $false
 
@@ -15,7 +14,6 @@ foreach ($arg in $args) {
     }
 }
 
-# Set commit message
 if ($autoCommit) {
     $date = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $commitMessage = "Automatic push ($date)"
@@ -25,11 +23,9 @@ if ($autoCommit) {
 
 git commit -m "$commitMessage"
 
-# Get current branch and push
 $branch = git branch --show-current
 git push origin $branch
 
-# Run RELOAD_PROJECT.ps1 if --reload was passed
 if ($reloadFlag) {
     Write-Host "Reloading project..."
     ./scripts/RELOAD_PROJECT.ps1
