@@ -7,7 +7,12 @@ from app import create_app
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 log = logging.getLogger("werkzeug")
-log.setLevel(logging.ERROR)
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s %(levelname)s: %(message)s",
+    handlers=[logging.StreamHandler()],
+)
+logging.setLevel(logging.DEBUG)
 
 app = create_app()
 
