@@ -18,6 +18,6 @@ def github_reload():
 
     subprocess.run(["git", "pull"], check=True)
 
-    subprocess.run(["sudo", "systemctl", "restart", "gunicorn"], check=True)
+    subprocess.Popen(["sudo", "systemctl", "restart", "gunicorn"], check=True)
 
     return jsonify({"message": "Code updated and Gunicorn restarted"}), 200
