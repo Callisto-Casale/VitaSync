@@ -12,6 +12,7 @@ class Config:
     OPEN_WEATHER_KEY = os.getenv("OPEN_WEATHER_KEY")
 
     AUTH_RELOAD_TOKEN = os.getenv("AUTH_RELOAD_TOKEN")
+    AUTH_SHIP_ENV_TOKEN = os.getenv("AUTH_SHIP_ENV_TOKEN")
 
 
 class Databases:
