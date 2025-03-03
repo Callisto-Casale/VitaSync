@@ -60,11 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch("/pihole/stats")
             .then(response => response.json())
             .then(data => {
-                console.log(data);
-
                 let stats = data.data;
-                console.log(stats);
-
                 // Custom number formatter for dot separators (German-style)
                 let formatter = new Intl.NumberFormat("de-DE");
 
