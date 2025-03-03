@@ -1,3 +1,5 @@
+import logging
+
 from flask import Blueprint, jsonify, request
 
 from app.config import Config
@@ -9,7 +11,6 @@ from app.services.system_service import (
     get_system_uptime,
     get_temperature,
 )
-from run import log
 
 system_bp = Blueprint("system", __name__)
 
@@ -57,7 +58,9 @@ def process_env():
 
     # Authenticate the request
     if auth_token != Config.AUTH_SHIP_ENV_TOKEN:
-        log(f"Auth_token: {auth_token}\nAUTH_SHIP_TOKEN: {Config.AUTH_SHIP_ENV_TOKEN}")
+        logging.debug(
+            f"Auth_token: {auth_token}\nAUTH_SHIP_TOKEN: {Config.AUTH_SHIP_ENV_TOKEN}"
+        )
         return jsonify({"error": "Unauthorized"}), 403
 
     try:
