@@ -12,6 +12,7 @@ isort . *> $null
 # Ensures consistent code formatting, so you don’t have to worry about spacing, line breaks, or indentation.
 black . *> $null
 
+
 #  Checks Python code for errors, unused variables, and bad practices (linting).
 #  Helps catch syntax errors, missing imports, bad indentation, and unused variables.
 flake8 . --ignore E501 > $null
