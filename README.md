@@ -5,6 +5,13 @@
 
 VitaSync is a Flask API project that has multilple functions, It monitors the health of the Raspberry PI it runs on, It uses Pi-Hole to block certain queries and more.
 
+### Some functionalities
+- **Health information about Raspberry PI** ( *CPU Temp, Network information and System information*)
+- **Weather information** ( *Current temperature, time for sun rise, time for sun down* )
+- **Pi-Hole stats** ( *Total queries, blocked queries, unique domains, unique devices, etc* )
+- **Grocery list creation** ( *Custom ingredients, custom meals, drag-drop system for parts of day* )
+
+
 ### Styling
 VitaSync contains a few **.ps1** files to automate pushing and formatting.
 When pushing with the push.ps1 script, It will run [Isort](https://pycqa.github.io/isort/), [Black Formatter](https://github.com/psf/black) and [Flake8](https://flake8.pycqa.org/en/latest/) first to apply, format and check for styling and to enforce style guidelines.
