@@ -32,5 +32,5 @@ git push origin $branch
 # Run RELOAD_PROJECT.ps1 if --reload was passed
 if ($reloadFlag) {
     Write-Host "Reloading project..."
-    ./RELOAD_PROJECT.ps1
+    ./scripts/RELOAD_PROJECT.ps1
 }
