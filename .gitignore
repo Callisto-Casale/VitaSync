@@ -169,3 +169,7 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Private files
+scripts/RELOAD_PI.ps1
+scripts/SHIP_ENV_TO_PI.ps1
