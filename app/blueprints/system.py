@@ -1,3 +1,5 @@
+import logging
+
 from flask import Blueprint, jsonify, request
 
 from app.config import Config
@@ -56,7 +58,7 @@ def process_env():
 
     # Authenticate the request
     if auth_token != Config.AUTH_SHIP_ENV_TOKEN:
-        print(
+        logging.debug(
             f"Auth_token: {auth_token}\nAUTH_SHIP_TOKEN: {Config.AUTH_SHIP_ENV_TOKEN}"
         )
         return jsonify({"error": "Unauthorized"}), 403
