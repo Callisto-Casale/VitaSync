@@ -12,7 +12,7 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s: %(message)s",
     handlers=[logging.StreamHandler()],
 )
-logging.setLevel(logging.DEBUG)
+
 
 app = create_app()
 
