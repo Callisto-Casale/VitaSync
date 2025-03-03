@@ -6,7 +6,7 @@ import requests
 
 from app.config import Config
 
-SESSION_FILE = "/home/cali/projects/pi-control/session/pihole_session.json"
+SESSION_FILE = "/home/cali/projects/VitaSync/session/pihole_session.json"
 
 
 def load_session():
