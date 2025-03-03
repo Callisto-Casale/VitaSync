@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Pi Control Centre</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    </head>
+    <body class="flex h-screen bg-gray-900 text-white">
+        <!-- Sidebar -->
+        <script src="https://unpkg.com/lucide@latest"></script>
+        <aside class="w-64 bg-gray-800 p-6 flex flex-col space-y-4 shadow-lg h-full text-white">
+            <div class="flex flex-col flex-grow">
+                <!-- System Stats Header -->
+                <h3 class="text-2xl font-semibold flex items-center justify-between space-x-2 mt-4 mb-4 w-full">
+                    <span>Raspberry Pi</span>
+                    <button id="reloadButton" class="reload-button" onclick="reloadPage()">
+                    <span class="reload-icon">
+                    <span class="arrow arrow-left"></span>
+                    <span class="arrow arrow-right"></span>
+                    </span>
+                    </button>
+                </h3>
+                <!-- Temperatures Section -->
+                <h4 class="text-lg font-semibold flex items-center space-x-2 mt-4 mb-2">
+                    <i data-lucide="thermometer"></i>
+                    <span>Temperatures</span>
+                </h4>
+                <div class="mb-6">
+                    <!-- Added margin-bottom for spacing -->
+                    <p class="flex items-center space-x-2">
+                        <i data-lucide="cpu"></i>
+                        <span>CPU Temp: <span id="temperature">Loading...</span></span>
+                    </p>
+                </div>
+                <!-- Network Section -->
+                <h4 class="text-lg font-semibold flex items-center space-x-2 mt-4 mb-2">
+                    <i data-lucide="wifi"></i>
+                    <span>Network</span>
+                </h4>
+                <div class="mb-6">
+                    <!-- Added margin-bottom for spacing -->
+                    <p class="flex items-center space-x-2">
+                        <i data-lucide="globe"></i>
+                        <span>IP Address: <span id="ip-address">Loading...</span></span>
+                    </p>
+                    <p class="flex items-center space-x-2">
+                        <i data-lucide="radio"></i>
+                        <span>Wifi SSID: <span id="wifi-ssid">Loading...</span></span>
+                    </p>
+                </div>
+                <!-- System Section -->
+                <h4 class="text-lg font-semibold flex items-center space-x-2 mt-4 mb-2">
+                    <i data-lucide="settings"></i>
+                    <span>System</span>
+                </h4>
+                <div class="mb-6">
+                    <!-- Added margin-bottom for spacing -->
+                    <p class="flex items-center space-x-2">
+                        <i data-lucide="memory-stick"></i>
+                        <span>RAM: <span id="ram-usage">Loading...</span></span>
+                    </p>
+                    <p class="flex items-center space-x-2">
+                        <i data-lucide="hard-drive"></i>
+                        <span>Disk Usage: <span id="disk-usage">Loading...</span></span>
+                    </p>
+                </div>
+            </div>
+            <!-- System Uptime at Bottom -->
+            <p class="flex items-center space-x-2 mt-auto">
+                <i data-lucide="clock"></i>
+                <span>System Uptime: <br><span id="system-uptime">Loading...</span></span>
+            </p>
+        </aside>
+        <!-- Initialize Icons -->
+        <script>
+            lucide.createIcons();
+        </script>
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col items-center justify-center p-8 space-y-6" id="mainScreen">
+            <!-- Top Full-Width Card -->
+            <div class="w-full max-w-4xl p-6 text-center">
+                <h1 class="text-4xl font-extrabold tracking-tight text-white">
+                    Welcome to Pi Control Centre
+                </h1>
+            </div>
+            <!-- Grid of Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
+                <!-- Pi-hole Toggle Card (Spans 3 Columns) -->
+                <div class="bg-gray-800 text-white p-6 rounded-lg shadow-lg flex flex-col col-span-1 lg:col-span-3 h-full">
+                    <div class="flex w-full h-full items-stretch">
+                        <!-- Left: Pi-hole Toggle Section -->
+                        <div class="flex flex-col items-start space-y-4 p-4 mr-6 bg-gray-900 rounded-lg shadow-md w-full max-w-sm h-full">
+                            <div class="flex items-center justify-between w-full">
+                                <h3 id="piholeTitle" class="text-xl font-bold text-green-400 flex items-center transition-colors duration-500">
+                                    🔌 Pi-hole <span class="ml-2 text-gray-400 text-xs" id="status">Status</span>
+                                </h3>
+                                <!-- Toggle Switch -->
+                                <label class="toggle-switch">
+                                <input type="checkbox" id="piholeToggle" {{ 'checked' if is_enabled else '' }}>
+                                <span class="slider"></span>
+                                </label>
+                            </div>
+                            <!-- Unique Domains Section -->
+                            <div class="flex flex-col space-y-1 w-full">
+                                <div class="w-full p-1 bg-gray-800 text-gray-300 rounded-lg flex items-center space-x-1 shadow-inner h-auto">
+                                    <span class="text-yellow-400 text-base">🌐</span>
+                                    <p class="text-xs font-medium">Unique Domains:</p>
+                                    <p id="unique_domains" class="text-sm font-semibold text-white">Loading...</p>
+                                </div>
+                                <div class="w-full p-1 bg-gray-800 text-gray-300 rounded-lg flex items-center space-x-1 shadow-inner h-auto mt-1">
+                                    <span class="text-blue-400 text-base">🖥️</span>
+                                    <p class="text-xs font-medium">Unique Devices:</p>
+                                    <p id="unique_devices" class="text-sm font-semibold text-white">Loading...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Right: Stats Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full h-full">
+                            <!-- Total Queries (Blue Card) -->
+                            <div class="bg-gray-800 text-gray-300 p-4 rounded-xl shadow-lg flex flex-col items-center border border-blue-500 h-full">
+                                <div class="flex items-center justify-center space-x-2 w-full">
+                                    <span class="text-blue-400 text-lg w-5 h-5 flex justify-center items-center">📊</span>
+                                    <h3 class="text-sm font-medium text-blue-400">Total Queries</h3>
+                                </div>
+                                <p class="text-2xl font-semibold mt-1 text-white" id="dns_queries">Loading...</p>
+                            </div>
+                            <!-- Queries Blocked (Red Card) -->
+                            <div class="bg-gray-800 text-gray-300 p-4 rounded-xl shadow-lg flex flex-col items-center border border-red-500 h-full">
+                                <div class="flex items-center justify-center space-x-2 w-full">
+                                    <span class="text-red-400 text-lg w-5 h-5 flex justify-center items-center">🚫</span>
+                                    <h3 class="text-sm font-medium text-red-400">Queries Blocked</h3>
+                                </div>
+                                <p class="text-2xl font-semibold mt-1 text-white" id="dns_queries_blocked">Loading...</p>
+                            </div>
+                            <!-- Percentage Blocked (Yellow Card) -->
+                            <div class="bg-gray-800 text-gray-300 p-4 rounded-xl shadow-lg flex flex-col items-center border border-yellow-500 h-full">
+                                <div class="flex items-center justify-center space-x-2 w-full">
+                                    <span class="text-yellow-400 text-lg w-5 h-5 flex justify-center items-center">📈</span>
+                                    <h3 class="text-sm font-medium text-yellow-400">Percentage Blocked</h3>
+                                </div>
+                                <p class="text-2xl font-semibold mt-1 text-white" id="percentage_blocked">Loading...</p>
+                            </div>
+                            <!-- Domains on Adlists (Green Card) -->
+                            <div class="bg-gray-800 text-gray-300 p-4 rounded-xl shadow-lg flex flex-col items-center border border-green-500 h-full">
+                                <div class="flex items-center justify-center space-x-2 w-full">
+                                    <span class="text-green-400 text-lg w-5 h-5 flex justify-center items-center">📝</span>
+                                    <h3 class="text-sm font-medium text-green-400">Domains on Adlists</h3>
+                                </div>
+                                <p class="text-2xl font-semibold mt-1 text-white" id="blocked_domain_amount">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Additional Cards Below -->
+                <div id="weather" class="bg-gray-800 text-white p-5 rounded-lg shadow-lg">
+                    <!-- Title & Live Time -->
+                    <div class="flex justify-between items-center mb-1">
+                        <h3 class="text-xl font-semibold">🌤️ Weather Info</h3>
+                        <p id="current-time" class="text-xs text-gray-400">--:--</p>
+                    </div>
+                    <!-- Location under title -->
+                    <p id="city" class="text-xs text-gray-400 mb-3">Loading location...</p>
+                    <!-- Temperature & Feels Like -->
+                    <p id="weather_temperature" class="text-lg font-semibold">
+                        --°C <span class="text-sm text-gray-400">(Feels like --°C)</span>
+                    </p>
+                    <!-- Sunrise & Sunset aligned to the left -->
+                    <div class="flex items-center text-sm text-gray-300 mt-2">
+                        <p class="flex items-center">
+                            🌅 <span id="sunrise" class="ml-1">--:--</span>
+                        </p>
+                        <p class="mx-2 text-gray-400">/</p>
+                        <p class="flex items-center">
+                            🌇 <span id="sunset" class="ml-1">--:--</span>
+                        </p>
+                    </div>
+                </div>
+                <div id="meals" class="bg-gray-800 text-white p-5 rounded-lg shadow-lg">
+                    <!-- Title & Placeholder for Live Count -->
+                    <div class="flex justify-between items-center mb-1">
+                        <h3 class="text-xl font-semibold">🍽️ Meals Info</h3>
+                    </div>
+                    <!-- Subtitle (Total Meals Count) -->
+                    <p class="text-xs text-gray-400 mb-3" id="totalAmountOfMeals">Loading...</p>
+                    <!-- View Meals Button -->
+                    <div class="flex items-center text-sm text-gray-300 mt-2">
+                        <a class="flex items-center bg-blue-500 hover:bg-blue-600 text-white font-semibold 
+                            py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105"
+                            onclick="openMealSection()">
+                        📜 <span class="ml-1">View Meals</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="bg-gray-800 text-white p-6 rounded-lg shadow-lg flex flex-col items-center">
+                    <h3 class="text-lg font-semibold mb-2">💡 Consectetur Adipiscing</h3>
+                    <p class="text-gray-300 text-center">Phasellus nec sem in justo pellentesque facilisis.</p>
+                </div>
+                <div class="bg-gray-800 text-white p-6 rounded-lg shadow-lg flex flex-col items-center">
+                    <h3 class="text-lg font-semibold mb-2">📡 Vestibulum Faucibus</h3>
+                    <p class="text-gray-300 text-center">Pellentesque habitant morbi tristique senectus.</p>
+                </div>
+                <div class="bg-gray-800 text-white p-6 rounded-lg shadow-lg flex flex-col items-center">
+                    <h3 class="text-lg font-semibold mb-2">💽 Suspendisse Egestas</h3>
+                    <p class="text-gray-300 text-center">Etiam ultricies nisi vel augue. Curabitur ullamcorper.</p>
+                </div>
+                <div class="bg-gray-800 text-white p-6 rounded-lg shadow-lg flex flex-col items-center">
+                    <h3 class="text-lg font-semibold mb-2">⏳ Integer Nec Odio</h3>
+                    <p class="text-gray-300 text-center">Nulla quis sem at nibh elementum imperdiet.</p>
+                </div>
+            </div>
+        </main>
+        <!---------------------------------------------------------------------------------------------------------->
+        <div id="mainMeals" class="flex-1 flex flex-col justify-center items-center opacity-0 hidden space-y-6">
+            <div class="w-full max-w-4xl flex items-center justify-start gap-3">
+                <!-- Back Arrow Button -->
+                <button onclick="backToMain()" class="text-white text-3xl hover:text-gray-400 transition">
+                ←
+                </button>
+                <!-- Title -->
+                <h1 class="text-4xl font-extrabold tracking-tight text-white">
+                    Meal Planner
+                </h1>
+            </div>
+            <!-- Cards Container (Side by Side) -->
+            <div class="w-full max-w-4xl flex justify-between space-x-6">
+                <!-- Meal Planner (Left Card) -->
+                <!-- Your Meal Plan (Left Card) -->
+                <div class="bg-gray-800 text-white p-5 rounded-lg shadow-lg flex flex-col h-[75vh] w-1/3 relative">
+                    <h2 class="text-2xl font-bold text-center">Your Meal Plan</h2>
+                    <!-- Drop Zones with Fixed Heights -->
+                    <div id="breakfastZone" class="drop-zone flex flex-col items-center p-4 rounded-lg w-full h-[20%] overflow-y-auto border-2 border-dashed border-gray-500 mt-4" data-limit="1">
+                        <h3 class="text-lg font-semibold">Breakfast</h3>
+                    </div>
+                    <div id="lunchZone" class="drop-zone flex flex-col items-center p-4 rounded-lg w-full h-[20%] overflow-y-auto border-2 border-dashed border-gray-500 mt-4" data-limit="1">
+                        <h3 class="text-lg font-semibold">Lunch</h3>
+                    </div>
+                    <div id="dinnerZone" class="drop-zone flex flex-col items-center p-4 rounded-lg w-full h-[20%] overflow-y-auto border-2 border-dashed border-gray-500 mt-4" data-limit="1">
+                        <h3 class="text-lg font-semibold">Dinner</h3>
+                    </div>
+                    <!-- Snacks (Multiple Allowed, Scrollable) -->
+                    <div id="snacksZone" class="drop-zone flex flex-col items-center p-4 rounded-lg w-full h-[35%] overflow-y-auto border-2 border-dashed border-gray-500 mt-4 space-y-3">
+                        <h3 class="text-lg font-semibold">Snacks & Extras</h3>
+                    </div>
+                    <!-- Sticky Trash Can Section (Aligned Properly) -->
+                    <div class="mt-auto w-full pb-6">
+                        <hr class="border-t border-gray-500 mb-6">
+                        <!-- Aligns with Available Meals Divider -->
+                        <div id="icons" class="flex items-center space-x-4 justify-center">
+                            <div id="trashCan" class="flex justify-center">
+                                <button class="text-4xl text-red-500 hover:text-red-700 transition">🗑️</button>
+                            </div>
+                            <button class="text-4xl text-red-500 hover:text-red-700 transition">✔️</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Available Meals (Middle Card) -->
+                <div class="bg-gray-800 text-white p-5 rounded-lg shadow-lg flex flex-col h-[75vh] w-1/3 relative">
+                    <h2 class="text-2xl font-bold text-center">Available Meals</h2>
+                    <!-- Scrollable Meals List -->
+                    <div id="mealsList" class="mt-4 w-full flex flex-col items-center space-y-3 overflow-y-auto flex-grow">
+                        <!-- Meals will be dynamically inserted here -->
+                    </div>
+                    <!-- Sticky Icons Section (Perfectly Aligned with Trash Can) -->
+                    <div class="mt-auto w-full pb-6">
+                        <!-- Ensures alignment -->
+                        <hr class="border-t border-gray-500 mb-6">
+                        <!-- Same height as Trash Can Divider -->
+                        <div class="flex justify-center space-x-6">
+                            <!-- Create Meal Icon -->
+                            <button onclick="openCreateMeal()" class="text-4xl text-blue-400 hover:text-blue-600 transition">
+                                🍝 <!-- Meal Icon -->
+                            </button>
+                            <!-- Create Ingredient Icon -->
+                            <button onclick="openCreateIngredient()" class="text-4xl text-green-400 hover:text-green-600 transition">
+                                🥕 <!-- Ingredient Icon -->
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Customise Meal (Right Card) -->
+                <div class="bg-gray-800 text-white p-5 rounded-lg shadow-lg flex flex-col justify-center items-center h-[75vh] w-1/3">
+                    <h2 class="text-2xl font-bold">Customise Meal</h2>
+                    <p class="mt-2 text-center">Create your own custom meal</p>
+                </div>
+            </div>
+        </div>
+        <!---------------------------------------------------------------------------------------------------------->
+        <div id="createMeal" class="flex-1 flex flex-col justify-center items-center opacity-0 hidden space-y-6">
+            <div class="w-full max-w-4xl flex items-center justify-start gap-3">
+                <button onclick="backToMealPlannerFromCreating()" class="text-white text-3xl hover:text-gray-400 transition">←</button>
+                <h1 class="text-4xl font-extrabold tracking-tight text-white">Create a New Meal</h1>
+            </div>
+            <div class="w-full max-w-4xl bg-gray-800 text-white p-5 rounded-lg shadow-lg flex flex-col space-y-4">
+                <!-- Meal Name -->
+                <input type="text" id="mealName" placeholder="Meal Name" class="p-3 rounded w-full bg-gray-700 text-white">
+                <!-- Category Dropdown -->
+                <label for="mealCategory" class="text-lg">Category:</label>
+                <select id="mealCategory" class="p-3 rounded w-full bg-gray-700 text-white">
+                    <option value="Breakfast">Breakfast</option>
+                    <option value="Lunch">Lunch</option>
+                    <option value="Dinner">Dinner</option>
+                    <option value="Snack & Extra">Snack & Extra</option>
+                </select>
+                <div class="relative w-full">
+                    <input type="text" id="ingredientSearch" placeholder="Search for ingredients..." class="p-3 rounded w-full bg-gray-700 text-white">
+                    <div id="searchResults" class="absolute top-full left-0 w-full bg-gray-800 text-white shadow-lg max-h-40 overflow-y-auto hidden"></div>
+                </div>
+                <table class="w-full text-white border-collapse mt-4">
+                    <thead>
+                        <tr class="border-b border-gray-500">
+                            <th class="p-2 text-left">Name</th>
+                            <th class="p-2 text-left">Unit</th>
+                            <th class="p-2 text-left">Amount</th>
+                            <th class="p-2 text-left">Price</th>
+                            <th class="p-2 text-center">Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody id="selectedIngredients"></tbody>
+                </table>
+                <!-- Instructions (Optional) -->
+                <textarea id="mealInstructions" placeholder="Instructions (optional)" class="p-3 rounded w-full bg-gray-700 text-white"></textarea>
+                <!-- Cook Time -->
+                <input type="number" id="cookTime" placeholder="Cook Time (minutes)" class="p-3 rounded w-full bg-gray-700 text-white">
+                <!-- Current Date (Hidden) -->
+                <input type="hidden" id="mealDate">
+                <!-- Save Meal Button -->
+                <button onclick="saveMeal()" class="bg-green-500 text-white p-3 rounded hover:bg-green-700 transition w-full">Save Meal</button>
+            </div>
+        </div>
+        <!---------------------------------------------------------------------------------------------------------->
+        <div id="createIngredient" class="flex-1 flex flex-col justify-center items-center opacity-0 hidden space-y-6">
+            <div class="w-full max-w-4xl flex items-center justify-start gap-3">
+                <button onclick="backToMealPlanner()" class="text-white text-3xl hover:text-gray-400 transition">←</button>
+                <h1 class="text-4xl font-extrabold tracking-tight text-white">Create a New Ingredient</h1>
+            </div>
+            <div class="w-full max-w-4xl bg-gray-800 text-white p-5 rounded-lg shadow-lg flex flex-col space-y-4">
+                <!-- Ingredient Name -->
+                <input type="text" id="ingredientName" placeholder="Ingredient Name" class="p-3 rounded w-full bg-gray-700 text-white">
+        
+                <!-- Unit Dropdown -->
+                <label for="ingredientUnit" class="text-lg">Unit:</label>
+                <select id="ingredientUnit" class="p-3 rounded w-full bg-gray-700 text-white">
+                    <option value="g">Gram (g)</option>
+                    <option value="ml">Milliliter (ml)</option>
+                    <option value="kg">Kilogram (kg)</option>
+                    <option value="l">Liter (l)</option>
+                    <option value="tsp">Teaspoon (tsp)</option>
+                    <option value="tbsp">Tablespoon (tbsp)</option>
+                    <option value="cup">Cup</option>
+                    <option value="piece">Piece</option>
+                </select>
+        
+                <!-- Price per Unit -->
+                <input type="number" id="ingredientPrice" placeholder="Price per Unit (e.g., per gram or ml)" class="p-3 rounded w-full bg-gray-700 text-white">
+        
+                <!-- Save Ingredient Button -->
+                <button onclick="saveIngredient()" class="bg-blue-500 text-white p-3 rounded hover:bg-blue-700 transition w-full">Save Ingredient</button>
+            </div>
+        </div>
+        
+        <script src="{{ url_for('static', filename='js/DOM.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/System.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/Weather.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/meals/Planner.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/meals/Create.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/meals/Ingredient.js') }}"></script>
+    </body>
+</html>
