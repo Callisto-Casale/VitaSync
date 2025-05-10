@@ -4,7 +4,7 @@ function reloadPageRequest() {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({})  // send an empty JSON object
+        body: JSON.stringify({})
     })
     .then(response => {
         if (response.ok) {
