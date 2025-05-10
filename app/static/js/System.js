@@ -1,17 +1,22 @@
 function reloadPageRequest() {
     fetch('/github/reload', {
-            method: 'POST'
-        })
-        .then(response => {
-            if (response.ok) {
-                console.log("Reload triggered successfully.");
-                location.reload();
-            } else {
-                console.error("Failed to trigger reload.");
-            }
-        })
-        .catch(error => console.error("Error:", error));
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})  // send an empty JSON object
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log("Reload triggered successfully.");
+            location.reload();
+        } else {
+            console.error("Failed to trigger reload.");
+        }
+    })
+    .catch(error => console.error("Error:", error));
 }
+
 
 function reloadPage() {
     const reloadIcon = document.querySelector('.reload-icon');
