@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(error => console.error("Error fetching data:", error));
     }
 
-    setInterval(updateTemperature, 150);
+    setInterval(updateTemperature, 5000);
     setInterval(updateRAM, 20000);
     setInterval(updateDisk, 120000);
     setInterval(updateSystemUptime, 60000);
