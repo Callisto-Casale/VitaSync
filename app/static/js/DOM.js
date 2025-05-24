@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => {
                 if (response.ok) {
                     console.log("Reload triggered successfully.");
-                    location.reload(); // Optional: Refresh the UI
+                    location.reload();
                 } else {
                     console.error("Failed to trigger reload.");
                 }
@@ -107,10 +107,9 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    // ✅ Fetch initial Pi-hole status and update UI
     async function fetchPiHoleStatus() {
         try {
-            const response = await fetch("/pihole/status"); // Make sure your backend has this route
+            const response = await fetch("/pihole/status");
             const data = await response.json();
             console.log(data);
 
@@ -130,10 +129,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Call function to fetch Pi-hole status on page load
     fetchPiHoleStatus();
 
-    // ✅ Add event listener for toggle switch
     toggle.addEventListener("change", async function () {
         const action = this.checked ? "enable" : "disable";
         try {
@@ -144,11 +141,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!response.ok) {
                 console.log("Something went wrong", response);
                 alert("Failed to update Pi-hole status.");
-                this.checked = !this.checked; // Revert toggle state on failure
+                this.checked = !this.checked;
                 return;
             }
 
-            // ✅ Update status text & color after toggling
             statusText.textContent = this.checked ? "Enabled" : "Disabled";
             piholeTitle.classList.toggle("text-green-400", this.checked);
             piholeTitle.classList.toggle("text-red-400", !this.checked);
@@ -156,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (error) {
             console.error("Error:", error);
             alert("An error occurred while updating Pi-hole status.");
-            this.checked = !this.checked; // Revert toggle state on error
+            this.checked = !this.checked;
         }
     });
 });
