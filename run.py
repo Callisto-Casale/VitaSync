@@ -14,12 +14,8 @@ logging.basicConfig(
 )
 
 
-def main():
-    app = create_app()
+app = create_app()
 
-
-if __name__ == "__main__":
-    main()
 
 # To run the project, run
 # gunicorn -w 2 -b 0.0.0.0:5000 run:app
